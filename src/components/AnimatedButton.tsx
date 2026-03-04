@@ -14,7 +14,7 @@ export default function AnimatedButton({
   variant = 'primary',
   className = '',
 }: AnimatedButtonProps) {
-  const baseStyles = 'relative px-6 py-3 rounded-xl font-semibold text-sm overflow-hidden cursor-pointer'
+  const baseStyles = 'relative rounded-xl font-semibold text-sm overflow-hidden cursor-pointer'
 
   const variants = {
     primary:
@@ -27,6 +27,7 @@ export default function AnimatedButton({
   return (
     <motion.button
       className={`${baseStyles} ${variants[variant]} ${className}`}
+      style={{ padding: '12px 24px' }}
       onClick={onClick}
       whileHover={{ scale: 1.05, y: -2 }}
       whileTap={{ scale: 0.95 }}
@@ -39,7 +40,7 @@ export default function AnimatedButton({
           transition={{ duration: 0.3 }}
         />
       )}
-      <span className="relative z-10 flex items-center gap-2">{children}</span>
+      <span className="relative z-10 flex items-center" style={{ gap: '8px' }}>{children}</span>
     </motion.button>
   )
 }

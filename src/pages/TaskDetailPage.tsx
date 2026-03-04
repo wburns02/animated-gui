@@ -23,7 +23,7 @@ export default function TaskDetailPage() {
     return (
       <PageTransition>
         <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 2rem' }}>
-          <div className="text-center py-16 text-gray-500">Loading task...</div>
+          <div className="text-center text-gray-500" style={{ padding: '64px 0' }}>Loading task...</div>
         </div>
       </PageTransition>
     )
@@ -36,11 +36,11 @@ export default function TaskDetailPage() {
 
   return (
     <PageTransition>
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 2rem' }} className="space-y-6">
-        <div className="flex items-center gap-4">
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 2rem', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="flex items-center" style={{ gap: '16px' }}>
           <AnimatedButton variant="ghost" onClick={() => navigate('/tasks')}>← Back</AnimatedButton>
           <div className="flex-1">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center" style={{ gap: '12px' }}>
               <span className="text-sm text-gray-600 font-mono">#{task.id}</span>
               <h1 className="text-xl font-bold text-white">{task.name}</h1>
               <StatusBadge status={task.status} />
@@ -48,29 +48,30 @@ export default function TaskDetailPage() {
           </div>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-4" style={{ gap: '16px' }}>
           {[
             { label: 'Model', value: task.model, color: '#8338ec' },
             { label: 'Priority', value: `P${task.priority}`, color: '#eab308' },
             { label: 'Budget', value: `$${task.budget_usd}`, color: '#00d4ff' },
             { label: 'Worker', value: task.worker_id ? `#${task.worker_id}` : 'None', color: '#00f5a0' },
           ].map(({ label, value, color }) => (
-            <GlassCard key={label} glowColor={color} className="p-4 text-center">
+            <GlassCard key={label} glowColor={color} className="text-center" padding="16px">
               <div className="text-xs text-gray-500 uppercase tracking-wider">{label}</div>
-              <div className="text-lg font-bold text-white mt-1">{value}</div>
+              <div className="text-lg font-bold text-white" style={{ marginTop: '4px' }}>{value}</div>
             </GlassCard>
           ))}
         </div>
 
         {deps.length > 0 && (
-          <GlassCard glowColor="#ff6b35" className="p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wider mb-2">Dependencies</div>
-            <div className="flex gap-2">
+          <GlassCard glowColor="#ff6b35" padding="16px">
+            <div className="text-xs text-gray-500 uppercase tracking-wider" style={{ marginBottom: '8px' }}>Dependencies</div>
+            <div className="flex" style={{ gap: '8px' }}>
               {deps.map(d => (
                 <motion.button
                   key={d}
                   onClick={() => navigate(`/tasks/${d}`)}
-                  className="px-3 py-1 rounded-full bg-orange-500/10 text-orange-400 text-xs font-mono border border-orange-500/20 hover:border-orange-500/50 transition-colors"
+                  className="rounded-full bg-orange-500/10 text-orange-400 text-xs font-mono border border-orange-500/20 hover:border-orange-500/50 transition-colors"
+                  style={{ padding: '4px 12px' }}
                   whileHover={{ scale: 1.05 }}
                 >
                   Task #{d}
@@ -81,42 +82,42 @@ export default function TaskDetailPage() {
         )}
 
         {task.promise_tag && (
-          <GlassCard glowColor="#00f5a0" className="p-4">
-            <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Promise Tag</div>
+          <GlassCard glowColor="#00f5a0" padding="16px">
+            <div className="text-xs text-gray-500 uppercase tracking-wider" style={{ marginBottom: '4px' }}>Promise Tag</div>
             <div className="text-sm font-mono text-neon-green">{task.promise_tag}</div>
           </GlassCard>
         )}
 
-        <GlassCard glowColor="#8338ec" className="p-5">
-          <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">Prompt</div>
+        <GlassCard glowColor="#8338ec" padding="20px">
+          <div className="text-xs text-gray-500 uppercase tracking-wider" style={{ marginBottom: '12px' }}>Prompt</div>
           <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed">{task.prompt}</p>
         </GlassCard>
 
         {task.output && (
-          <GlassCard glowColor="#00d4ff" className="p-5">
-            <div className="text-xs text-gray-500 uppercase tracking-wider mb-3">Output</div>
-            <pre className="text-xs text-gray-400 bg-black/30 rounded-lg p-4 max-h-96 overflow-y-auto font-mono whitespace-pre-wrap">
+          <GlassCard glowColor="#00d4ff" padding="20px">
+            <div className="text-xs text-gray-500 uppercase tracking-wider" style={{ marginBottom: '12px' }}>Output</div>
+            <pre className="text-xs text-gray-400 bg-black/30 rounded-lg font-mono whitespace-pre-wrap overflow-y-auto" style={{ padding: '16px', maxHeight: '384px' }}>
               {task.output}
             </pre>
           </GlassCard>
         )}
 
         {task.error && (
-          <GlassCard glowColor="#ef4444" className="p-5">
-            <div className="text-xs text-red-400 uppercase tracking-wider mb-3">Error</div>
-            <pre className="text-xs text-red-300/80 bg-red-500/5 rounded-lg p-4 font-mono whitespace-pre-wrap">
+          <GlassCard glowColor="#ef4444" padding="20px">
+            <div className="text-xs text-red-400 uppercase tracking-wider" style={{ marginBottom: '12px' }}>Error</div>
+            <pre className="text-xs text-red-300/80 bg-red-500/5 rounded-lg font-mono whitespace-pre-wrap" style={{ padding: '16px' }}>
               {task.error}
             </pre>
           </GlassCard>
         )}
 
-        <div className="flex items-center gap-4 text-xs text-gray-600">
+        <div className="flex items-center text-xs text-gray-600" style={{ gap: '16px' }}>
           <span>Created: {new Date(task.created_at).toLocaleString()}</span>
           {task.started_at && <span>Started: {new Date(task.started_at).toLocaleString()}</span>}
           {task.completed_at && <span>Completed: {new Date(task.completed_at).toLocaleString()}</span>}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex" style={{ gap: '12px' }}>
           {task.status === 'failed' && (
             <AnimatedButton variant="secondary" onClick={async () => { await api.tasks.update(task.id, { status: 'pending' }); refresh() }}>
               Retry Task

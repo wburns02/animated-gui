@@ -20,7 +20,7 @@ export default function TasksPage() {
 
   return (
     <PageTransition>
-      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '2rem 2rem' }} className="space-y-6">
+      <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '2rem 2rem', display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Tasks</h1>
           <AnimatedButton onClick={() => setShowCreate(!showCreate)}>
@@ -38,16 +38,17 @@ export default function TasksPage() {
         </AnimatePresence>
 
         {/* Filter Pills */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap" style={{ gap: '8px' }}>
           {statusFilters.map(s => (
             <motion.button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+              className={`rounded-full text-xs font-medium transition-all ${
                 filter === s
                   ? 'bg-neon-purple/20 text-neon-purple border border-neon-purple/40'
                   : 'bg-white/[0.03] text-gray-400 border border-white/[0.05] hover:text-white'
               }`}
+              style={{ padding: '6px 12px' }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -57,7 +58,7 @@ export default function TasksPage() {
         </div>
 
         {/* Task List */}
-        <div className="space-y-3">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <AnimatePresence>
             {filtered.map((task, i) => (
               <motion.div
@@ -69,25 +70,25 @@ export default function TasksPage() {
               >
                 <GlassCard
                   glowColor={task.status === 'running' ? '#3b82f6' : task.status === 'failed' ? '#ef4444' : '#8338ec'}
-                  className="p-4"
+                  padding="16px"
                 >
                   <div
                     className="flex items-start justify-between cursor-pointer"
                     onClick={() => setExpandedId(expandedId === task.id ? null : task.id)}
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-3">
+                    <div className="flex-1" style={{ minWidth: 0 }}>
+                      <div className="flex items-center" style={{ gap: '12px' }}>
                         <span className="text-xs text-gray-600 font-mono">#{task.id}</span>
                         <h3 className="text-sm font-semibold text-white truncate">{task.name}</h3>
                       </div>
-                      <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-500">
+                      <div className="flex items-center text-xs text-gray-500" style={{ gap: '12px', marginTop: '6px' }}>
                         <span>{task.model}</span>
                         <span>P{task.priority}</span>
                         {task.budget_usd && <span>${task.budget_usd} budget</span>}
                         {task.promise_tag && <span className="text-neon-green/60">🏷 {task.promise_tag}</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center" style={{ gap: '12px' }}>
                       <StatusBadge status={task.status} />
                       <motion.span
                         className="text-gray-500 text-xs"
@@ -104,17 +105,17 @@ export default function TasksPage() {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="mt-4 pt-4 border-t border-white/[0.05] space-y-3">
+                        <div className="border-t border-white/[0.05]" style={{ marginTop: '16px', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                           <div>
                             <label className="text-xs text-gray-500 uppercase tracking-wider">Prompt</label>
-                            <p className="text-sm text-gray-300 mt-1 whitespace-pre-wrap leading-relaxed max-h-40 overflow-y-auto">
+                            <p className="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed overflow-y-auto" style={{ marginTop: '4px', maxHeight: '160px' }}>
                               {task.prompt}
                             </p>
                           </div>
                           {task.output && (
                             <div>
                               <label className="text-xs text-gray-500 uppercase tracking-wider">Output</label>
-                              <pre className="text-xs text-gray-400 mt-1 bg-black/30 rounded-lg p-3 max-h-40 overflow-y-auto font-mono whitespace-pre-wrap">
+                              <pre className="text-xs text-gray-400 bg-black/30 rounded-lg font-mono whitespace-pre-wrap overflow-y-auto" style={{ marginTop: '4px', padding: '12px', maxHeight: '160px' }}>
                                 {task.output.slice(-2000)}
                               </pre>
                             </div>
@@ -122,17 +123,17 @@ export default function TasksPage() {
                           {task.error && (
                             <div>
                               <label className="text-xs text-red-400 uppercase tracking-wider">Error</label>
-                              <pre className="text-xs text-red-300/80 mt-1 bg-red-500/5 rounded-lg p-3 font-mono whitespace-pre-wrap">
+                              <pre className="text-xs text-red-300/80 bg-red-500/5 rounded-lg font-mono whitespace-pre-wrap" style={{ marginTop: '4px', padding: '12px' }}>
                                 {task.error}
                               </pre>
                             </div>
                           )}
-                          <div className="flex items-center gap-3 text-xs text-gray-600">
+                          <div className="flex items-center text-xs text-gray-600" style={{ gap: '12px' }}>
                             <span>Created: {new Date(task.created_at).toLocaleString()}</span>
                             {task.started_at && <span>Started: {new Date(task.started_at).toLocaleString()}</span>}
                             {task.completed_at && <span>Done: {new Date(task.completed_at).toLocaleString()}</span>}
                           </div>
-                          <div className="flex gap-2 pt-2">
+                          <div className="flex" style={{ gap: '8px', paddingTop: '8px' }}>
                             {task.status === 'pending' && (
                               <AnimatedButton variant="ghost" onClick={async () => { await api.tasks.delete(task.id); refresh() }}>
                                 Delete
@@ -154,10 +155,10 @@ export default function TasksPage() {
           </AnimatePresence>
 
           {filtered.length === 0 && !tasks && (
-            <div className="text-center py-16 text-gray-500">Loading tasks...</div>
+            <div className="text-center text-gray-500" style={{ padding: '64px 0' }}>Loading tasks...</div>
           )}
           {filtered.length === 0 && tasks && (
-            <div className="text-center py-16 text-gray-500">
+            <div className="text-center text-gray-500" style={{ padding: '64px 0' }}>
               {filter === 'all' ? 'No tasks yet. Create one to get started.' : `No ${filter} tasks.`}
             </div>
           )}
@@ -187,14 +188,15 @@ function CreateTaskForm({ onCreated }: { onCreated: () => void }) {
   }
 
   return (
-    <GlassCard glowColor="#8338ec" className="p-5">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <GlassCard glowColor="#8338ec" padding="20px">
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         <div>
           <label className="text-xs text-gray-400 uppercase tracking-wider">Task Name</label>
           <input
             value={name}
             onChange={e => setName(e.target.value)}
-            className="w-full mt-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-purple/50"
+            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-purple/50"
+            style={{ marginTop: '4px', padding: '8px 12px' }}
             placeholder="e.g., Build auth system"
           />
         </div>
@@ -204,24 +206,26 @@ function CreateTaskForm({ onCreated }: { onCreated: () => void }) {
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
             rows={4}
-            className="w-full mt-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-purple/50 resize-none"
+            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-purple/50 resize-none"
+            style={{ marginTop: '4px', padding: '8px 12px' }}
             placeholder="Describe what the AI should build..."
           />
         </div>
-        <div className="flex gap-4">
+        <div className="flex" style={{ gap: '16px' }}>
           <div className="flex-1">
             <label className="text-xs text-gray-400 uppercase tracking-wider">Model</label>
             <select
               value={model}
               onChange={e => setModel(e.target.value)}
-              className="w-full mt-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neon-purple/50"
+              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none focus:border-neon-purple/50"
+              style={{ marginTop: '4px', padding: '8px 12px' }}
             >
               <option value="sonnet" className="bg-dark-800">Sonnet</option>
               <option value="opus" className="bg-dark-800">Opus</option>
               <option value="haiku" className="bg-dark-800">Haiku</option>
             </select>
           </div>
-          <div className="w-24">
+          <div style={{ width: '96px' }}>
             <label className="text-xs text-gray-400 uppercase tracking-wider">Priority</label>
             <input
               type="number"
@@ -229,14 +233,16 @@ function CreateTaskForm({ onCreated }: { onCreated: () => void }) {
               onChange={e => setPriority(Number(e.target.value))}
               min={1}
               max={10}
-              className="w-full mt-1 bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-neon-purple/50"
+              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white focus:outline-none focus:border-neon-purple/50"
+              style={{ marginTop: '4px', padding: '8px 12px' }}
             />
           </div>
         </div>
         <motion.button
           type="submit"
           disabled={submitting}
-          className="w-full px-6 py-3 rounded-xl font-semibold text-sm bg-gradient-to-r from-[#8338ec] to-[#00d4ff] text-white shadow-lg shadow-[#8338ec]/20 cursor-pointer disabled:opacity-50"
+          className="w-full rounded-xl font-semibold text-sm bg-gradient-to-r from-[#8338ec] to-[#00d4ff] text-white shadow-lg shadow-[#8338ec]/20 cursor-pointer disabled:opacity-50"
+          style={{ padding: '12px 24px' }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >

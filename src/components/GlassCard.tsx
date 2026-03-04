@@ -5,12 +5,14 @@ interface GlassCardProps {
   children: ReactNode
   className?: string
   glowColor?: string
+  padding?: string
 }
 
 export default function GlassCard({
   children,
   className = '',
   glowColor = '#8338ec',
+  padding,
 }: GlassCardProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
@@ -72,7 +74,7 @@ export default function GlassCard({
         />
       )}
 
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10" style={padding ? { padding } : undefined}>{children}</div>
     </motion.div>
   )
 }

@@ -14,14 +14,15 @@ export default function StatusBadge({ status }: { status: string }) {
 
   return (
     <motion.span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text}`}
+      className={`inline-flex items-center rounded-full text-xs font-semibold ${config.bg} ${config.text}`}
+      style={{ gap: '6px', padding: '4px 10px' }}
       initial={{ scale: 0.8, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
     >
       {config.pulse && (
-        <span className="relative flex h-2 w-2">
+        <span className="relative flex" style={{ height: '8px', width: '8px' }}>
           <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75`} style={{ backgroundColor: config.glow }} />
-          <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: config.glow }} />
+          <span className="relative inline-flex rounded-full" style={{ height: '8px', width: '8px', backgroundColor: config.glow }} />
         </span>
       )}
       {status}

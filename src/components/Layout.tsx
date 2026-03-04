@@ -44,7 +44,8 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0.75rem 2rem' }} className="flex items-center justify-between">
           <NavLink to="/">
             <motion.div
-              className="flex items-center gap-2"
+              className="flex items-center"
+              style={{ gap: '8px' }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
@@ -55,16 +56,17 @@ export default function Layout({ children }: { children: ReactNode }) {
             </motion.div>
           </NavLink>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center" style={{ gap: '4px' }}>
             {navItems.map(({ to, label, icon }) => (
               <NavLink
                 key={to}
                 to={to}
                 className={({ isActive }) =>
-                  `relative px-3 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1.5 ${
+                  `relative rounded-full text-sm font-medium transition-all duration-300 flex items-center ${
                     isActive ? 'text-white' : 'text-gray-400 hover:text-white'
                   }`
                 }
+                style={{ padding: '8px 12px', gap: '6px' }}
               >
                 {({ isActive }) => (
                   <>
@@ -79,7 +81,8 @@ export default function Layout({ children }: { children: ReactNode }) {
                     <span className="relative z-10 hidden sm:inline">{label}</span>
                     {label === 'Requests' && pendingRequests > 0 && (
                       <motion.span
-                        className="relative z-10 ml-1 px-1.5 py-0.5 rounded-full bg-neon-pink/20 text-neon-pink text-[10px] font-bold"
+                        className="relative z-10 rounded-full bg-neon-pink/20 text-neon-pink text-[10px] font-bold"
+                        style={{ marginLeft: '4px', padding: '2px 6px' }}
                         animate={{ scale: [1, 1.2, 1] }}
                         transition={{ repeat: Infinity, duration: 2 }}
                       >
@@ -92,8 +95,8 @@ export default function Layout({ children }: { children: ReactNode }) {
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className={`w-2 h-2 rounded-full ${connected === true ? 'bg-emerald-400' : connected === false ? 'bg-red-400' : 'bg-gray-600'}`} />
+          <div className="flex items-center" style={{ gap: '8px' }}>
+            <div className={`rounded-full ${connected === true ? 'bg-emerald-400' : connected === false ? 'bg-red-400' : 'bg-gray-600'}`} style={{ width: '8px', height: '8px' }} />
             <span className="text-xs text-gray-500">{connected === true ? 'Connected' : connected === false ? 'Offline' : '...'}</span>
           </div>
         </div>

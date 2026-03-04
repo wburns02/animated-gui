@@ -18,12 +18,13 @@ export default function HumanRequestsPage() {
 
   return (
     <PageTransition>
-      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 2rem' }} className="space-y-6">
-        <div className="flex items-center gap-3">
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '2rem 2rem', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <div className="flex items-center" style={{ gap: '12px' }}>
           <h1 className="text-2xl font-bold text-white">Human Requests</h1>
           {pending.length > 0 && (
             <motion.span
-              className="px-2.5 py-1 rounded-full bg-neon-pink/15 text-neon-pink text-xs font-bold"
+              className="rounded-full bg-neon-pink/15 text-neon-pink text-xs font-bold"
+              style={{ padding: '4px 10px' }}
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ repeat: Infinity, duration: 2 }}
             >
@@ -33,7 +34,7 @@ export default function HumanRequestsPage() {
         </div>
 
         {pending.length > 0 && (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h2 className="text-sm font-medium text-neon-pink uppercase tracking-wider">Pending</h2>
             {pending.map((req, i) => (
               <motion.div key={req.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
@@ -44,7 +45,7 @@ export default function HumanRequestsPage() {
         )}
 
         {answered.length > 0 && (
-          <div className="space-y-4">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <h2 className="text-sm font-medium text-gray-500 uppercase tracking-wider">Answered</h2>
             {answered.map((req, i) => (
               <motion.div key={req.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.03 }}>
@@ -54,9 +55,9 @@ export default function HumanRequestsPage() {
           </div>
         )}
 
-        {!requests && <div className="text-center py-16 text-gray-500">Loading...</div>}
+        {!requests && <div className="text-center text-gray-500" style={{ padding: '64px 0' }}>Loading...</div>}
         {requests && requests.length === 0 && (
-          <div className="text-center py-16 text-gray-500">No human requests. Workers will ask for help here when they need it.</div>
+          <div className="text-center text-gray-500" style={{ padding: '64px 0' }}>No human requests. Workers will ask for help here when they need it.</div>
         )}
       </div>
     </PageTransition>
@@ -84,31 +85,31 @@ function RequestCard({ request: req, onAnswered }: { request: HumanRequest; onAn
   }
 
   return (
-    <GlassCard glowColor={isPending ? '#ff006e' : '#6b7280'} className="p-5">
-      <div className="flex items-start justify-between mb-3">
+    <GlassCard glowColor={isPending ? '#ff006e' : '#6b7280'} padding="20px">
+      <div className="flex items-start justify-between" style={{ marginBottom: '12px' }}>
         <div>
           <span className="text-xs text-gray-500 font-mono">Task #{req.task_id} · Request #{req.id}</span>
         </div>
-        <span className={`text-xs px-2 py-0.5 rounded-full ${isPending ? 'bg-neon-pink/15 text-neon-pink' : 'bg-gray-500/15 text-gray-400'}`}>
+        <span className={`text-xs rounded-full ${isPending ? 'bg-neon-pink/15 text-neon-pink' : 'bg-gray-500/15 text-gray-400'}`} style={{ padding: '2px 8px' }}>
           {req.status}
         </span>
       </div>
 
-      <div className="mb-3">
-        <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Question</div>
+      <div style={{ marginBottom: '12px' }}>
+        <div className="text-xs text-gray-500 uppercase tracking-wider" style={{ marginBottom: '4px' }}>Question</div>
         <p className="text-sm text-white leading-relaxed">{req.question}</p>
       </div>
 
       {req.context && (
-        <div className="mb-3">
-          <div className="text-xs text-gray-500 uppercase tracking-wider mb-1">Context</div>
-          <pre className="text-xs text-gray-400 bg-black/20 rounded-lg p-3 max-h-32 overflow-y-auto font-mono whitespace-pre-wrap">{req.context}</pre>
+        <div style={{ marginBottom: '12px' }}>
+          <div className="text-xs text-gray-500 uppercase tracking-wider" style={{ marginBottom: '4px' }}>Context</div>
+          <pre className="text-xs text-gray-400 bg-black/20 rounded-lg font-mono whitespace-pre-wrap overflow-y-auto" style={{ padding: '12px', maxHeight: '128px' }}>{req.context}</pre>
         </div>
       )}
 
       {req.response && (
-        <div className="mb-3">
-          <div className="text-xs text-neon-green/70 uppercase tracking-wider mb-1">Response</div>
+        <div style={{ marginBottom: '12px' }}>
+          <div className="text-xs text-neon-green/70 uppercase tracking-wider" style={{ marginBottom: '4px' }}>Response</div>
           <p className="text-sm text-gray-300 leading-relaxed">{req.response}</p>
         </div>
       )}
@@ -121,16 +122,17 @@ function RequestCard({ request: req, onAnswered }: { request: HumanRequest; onAn
             </AnimatedButton>
           ) : (
             <AnimatePresence>
-              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} className="space-y-3">
+              <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <textarea
                   value={response}
                   onChange={e => setResponse(e.target.value)}
                   rows={3}
                   autoFocus
                   placeholder="Type your response..."
-                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-pink/50 resize-none"
+                  className="w-full bg-white/[0.03] border border-white/[0.08] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:border-neon-pink/50 resize-none"
+                  style={{ padding: '8px 12px' }}
                 />
-                <div className="flex gap-2">
+                <div className="flex" style={{ gap: '8px' }}>
                   <AnimatedButton onClick={handleSubmit}>
                     {submitting ? 'Sending...' : 'Send Response'}
                   </AnimatedButton>
@@ -142,7 +144,7 @@ function RequestCard({ request: req, onAnswered }: { request: HumanRequest; onAn
         </>
       )}
 
-      <div className="mt-3 text-xs text-gray-600">
+      <div className="text-xs text-gray-600" style={{ marginTop: '12px' }}>
         {new Date(req.created_at).toLocaleString()}
         {req.answered_at && ` · Answered: ${new Date(req.answered_at).toLocaleString()}`}
       </div>
