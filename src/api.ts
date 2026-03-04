@@ -1,4 +1,20 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8787'
+// API URL resolution:
+// 1. If VITE_API_URL is set at build time, use it
+// 2. If served from the API itself (Tailscale Funnel), use same-origin (empty string)
+// 3. Fallback to localhost for local dev
+function getApiBase(): string {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL
+  // If we're served from the Tailscale Funnel or the API server, use same-origin
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname
+    if (host.endsWith('.ts.net') || host === 'localhost' || host === '127.0.0.1') {
+      return ''
+    }
+  }
+  return 'http://localhost:8787'
+}
+
+const API_BASE = getApiBase()
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const headers: Record<string, string> = { ...options?.headers as Record<string, string> }

@@ -102,6 +102,16 @@ export default function Layout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </nav>
+      {connected === false && !window.location.hostname.endsWith('.ts.net') && !['localhost', '127.0.0.1'].includes(window.location.hostname) && (
+        <div style={{ position: 'fixed', top: '60px', left: 0, right: 0, zIndex: 40, padding: '12px 24px', background: 'rgba(239, 68, 68, 0.15)', borderBottom: '1px solid rgba(239, 68, 68, 0.3)', textAlign: 'center' }}>
+          <span className="text-sm text-red-300">
+            Cannot reach local API. Access the dashboard directly at{' '}
+            <a href="https://r730.tailad2d5f.ts.net/" className="text-red-200 underline font-bold">
+              r730.tailad2d5f.ts.net
+            </a>
+          </span>
+        </div>
+      )}
       <main style={{ paddingTop: '80px' }}>{children}</main>
     </div>
   )
