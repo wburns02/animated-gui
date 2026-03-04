@@ -78,6 +78,21 @@ export interface EventLog {
   created_at: string
 }
 
+export interface Session {
+  pid: number
+  tty: string
+  cpu_percent: number
+  mem_mb: number
+  status: string
+  start_time: string
+  cwd: string
+  command: string
+  session_id: string
+  session_slug: string
+  session_title: string
+  last_activity: string
+}
+
 export interface Stats {
   total_tasks: number
   pending: number
@@ -120,6 +135,10 @@ export const api = {
       request<{ answered: number }>(`/human-requests/${id}/answer`, {
         method: 'POST', body: JSON.stringify({ response }),
       }),
+  },
+
+  sessions: {
+    list: () => request<Session[]>('/sessions'),
   },
 
   events: {

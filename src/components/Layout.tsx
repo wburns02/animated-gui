@@ -13,6 +13,7 @@ const navItems = [
   { to: '/workers', label: 'Workers', icon: '⚡' },
   { to: '/requests', label: 'Requests', icon: '💬' },
   { to: '/events', label: 'Events', icon: '◎' },
+  { to: '/sessions', label: 'Sessions', icon: '🖥' },
 ]
 
 export default function Layout({ children }: { children: ReactNode }) {
