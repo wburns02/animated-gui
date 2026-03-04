@@ -25,9 +25,17 @@ export default function SessionsPage() {
     return () => { active = false; clearInterval(interval) }
   }, [])
 
-  // Load automation settings
+  // Poll automation settings every 5s (same cadence as sessions)
   useEffect(() => {
-    api.sessions.automation().then(setAutomationSettings).catch(() => {})
+    let active = true
+    const load = () => {
+      api.sessions.automation()
+        .then(data => { if (active) setAutomationSettings(data) })
+        .catch(() => {})
+    }
+    load()
+    const interval = setInterval(load, 5000)
+    return () => { active = false; clearInterval(interval) }
   }, [])
 
   const running = sessions?.filter(s => s.status === 'running') || []
@@ -85,6 +93,7 @@ export default function SessionsPage() {
                 session={session}
                 summary={summaries[session.session_id] || null}
                 automationEnabled={!!automationSettings[session.session_id]?.enabled}
+                automationSettings={automationSettings}
                 onToggleAutomation={handleToggleAutomation}
                 onRefreshSummary={handleRefreshSummary}
               />
@@ -105,10 +114,11 @@ export default function SessionsPage() {
   )
 }
 
-function SessionCard({ session: s, summary, automationEnabled, onToggleAutomation, onRefreshSummary }: {
+function SessionCard({ session: s, summary, automationEnabled, automationSettings, onToggleAutomation, onRefreshSummary }: {
   session: Session
   summary: SessionSummary | null
   automationEnabled: boolean
+  automationSettings: Record<string, AutomationSetting>
   onToggleAutomation: (sessionId: string, enabled: boolean) => void
   onRefreshSummary: (sessionId: string) => void
 }) {
@@ -339,6 +349,24 @@ function SessionCard({ session: s, summary, automationEnabled, onToggleAutomatio
             <span className="text-xs text-gray-600">
               {automationEnabled ? 'Auto-prompting enabled' : 'Manual only'}
             </span>
+            {automationEnabled && (
+              <span className="text-xs text-neon-green/50">
+                {(() => {
+                  const setting = automationSettings[s.session_id]
+                  if (!setting) return ''
+                  const count = setting.prompt_count || 0
+                  const last = setting.last_prompt_at
+                  if (count === 0) return '(waiting...)'
+                  if (last) {
+                    const ago = Math.round((Date.now() - new Date(last).getTime()) / 1000)
+                    if (ago < 60) return `(${count} sent, ${ago}s ago)`
+                    if (ago < 3600) return `(${count} sent, ${Math.round(ago/60)}m ago)`
+                    return `(${count} sent)`
+                  }
+                  return `(${count} sent)`
+                })()}
+              </span>
+            )}
           </div>
           <button
             onClick={() => onToggleAutomation(s.session_id, !automationEnabled)}
