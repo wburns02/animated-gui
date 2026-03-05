@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 
 interface GlassCardProps {
@@ -14,41 +14,16 @@ export default function GlassCard({
   glowColor = '#8338ec',
   padding,
 }: GlassCardProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [tilt, setTilt] = useState({ x: 0, y: 0 })
   const [hovering, setHovering] = useState(false)
 
-  const handleMouse = (e: React.MouseEvent) => {
-    if (!ref.current) return
-    const rect = ref.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width - 0.5
-    const y = (e.clientY - rect.top) / rect.height - 0.5
-    setTilt({ x: y * -15, y: x * 15 })
-  }
-
   return (
-    <motion.div
-      ref={ref}
-      className={`relative rounded-2xl overflow-hidden cursor-pointer ${className}`}
-      style={{
-        perspective: '1000px',
-        transformStyle: 'preserve-3d',
-      }}
-      onMouseMove={handleMouse}
+    <div
+      className={`relative rounded-2xl overflow-hidden ${className}`}
       onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => {
-        setHovering(false)
-        setTilt({ x: 0, y: 0 })
-      }}
-      animate={{
-        rotateX: tilt.x,
-        rotateY: tilt.y,
-      }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      whileTap={{ scale: 0.97 }}
+      onMouseLeave={() => setHovering(false)}
     >
       {/* Glass background */}
-      <div className="absolute inset-0 bg-[rgba(255,255,255,0.03)] backdrop-blur-xl border border-[rgba(255,255,255,0.08)] rounded-2xl" />
+      <div className="absolute inset-0 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.08)] rounded-2xl" />
 
       {/* Glow effect */}
       <motion.div
@@ -75,6 +50,6 @@ export default function GlassCard({
       )}
 
       <div className="relative z-10" style={padding ? { padding } : undefined}>{children}</div>
-    </motion.div>
+    </div>
   )
 }
