@@ -11,6 +11,7 @@ interface TerminalInstance {
 
 const PROJECTS = [
   { name: 'BreweryCRM', dir: '~/BreweryCRM', backend: '~/bearded-hop-api', prod: 'https://bearded-hop-frontend-production.up.railway.app' },
+  { name: 'LandscapeCRM', dir: '~/LandscapeCRM', backend: '~/landscape-crm-api', prod: '' },
   { name: 'CrownHardware', dir: '~/CrownHardware', backend: '~/CrownHardware/backend', prod: '' },
   { name: 'ReactCRM', dir: '~/ReactCRM', backend: '~/react-crm-api', prod: 'https://react.ecbtx.com' },
 ]
