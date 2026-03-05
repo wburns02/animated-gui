@@ -159,13 +159,25 @@ export default function IntelligencePage() {
                 <div className="text-sm font-semibold text-white">Project Memory</div>
                 <div className="text-xs text-gray-500">{selectedProject} — {memory?.length || 0} entries</div>
               </div>
-              <button
-                onClick={() => setShowAddForm(!showAddForm)}
-                className="text-xs font-medium rounded-full bg-neon-purple/10 text-neon-purple hover:bg-neon-purple/20 border border-neon-purple/30 transition-all"
-                style={{ padding: '4px 10px' }}
-              >
-                + Add
-              </button>
+              <div className="flex items-center" style={{ gap: '6px' }}>
+                <button
+                  onClick={async () => {
+                    await fetch(`/api/memory/${selectedProject}/generate-claude-md`, { method: 'POST' })
+                    refreshMemory()
+                  }}
+                  className="text-xs font-medium rounded-full bg-neon-green/10 text-neon-green hover:bg-neon-green/20 border border-neon-green/30 transition-all"
+                  style={{ padding: '4px 10px' }}
+                >
+                  Gen CLAUDE.md
+                </button>
+                <button
+                  onClick={() => setShowAddForm(!showAddForm)}
+                  className="text-xs font-medium rounded-full bg-neon-purple/10 text-neon-purple hover:bg-neon-purple/20 border border-neon-purple/30 transition-all"
+                  style={{ padding: '4px 10px' }}
+                >
+                  + Add
+                </button>
+              </div>
             </div>
 
             {showAddForm && (
