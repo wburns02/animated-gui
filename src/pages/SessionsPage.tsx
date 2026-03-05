@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../components/PageTransition'
 import GlassCard from '../components/GlassCard'
 import { api } from '../api'
-import type { Session, SessionSummary, AutomationSetting, PromptHistoryEntry } from '../api'
+import type { Session, SessionSummary, AutomationSetting, PromptHistoryEntry, SprintEntry } from '../api'
 import { usePolling } from '../hooks/usePolling'
 
 export default function SessionsPage() {
@@ -128,8 +128,10 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
   const [showDetails, setShowDetails] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [promptHistory, setPromptHistory] = useState<PromptHistoryEntry[]>([])
+  const [sprints, setSprints] = useState<SprintEntry[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [expandedPromptId, setExpandedPromptId] = useState<number | null>(null)
+  const [expandedSprintId, setExpandedSprintId] = useState<number | null>(null)
   const [prompt, setPrompt] = useState('')
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
@@ -138,8 +140,12 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
     if (!s.session_id) return
     setHistoryLoading(true)
     try {
-      const data = await api.sessions.promptHistory(s.session_id)
-      setPromptHistory(data)
+      const [prompts, sprintData] = await Promise.all([
+        api.sessions.promptHistory(s.session_id),
+        api.sessions.sprints(s.session_id),
+      ])
+      setPromptHistory(prompts)
+      setSprints(sprintData)
     } catch { /* ignore */ }
     setHistoryLoading(false)
   }
@@ -541,6 +547,52 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
                   </div>
                 ))}
               </div>
+
+              {/* Sprint Results */}
+              {sprints.length > 0 && (
+                <div style={{ marginTop: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '10px' }}>
+                  <span className="text-xs text-neon-green font-semibold">Sprint Results</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '6px' }}>
+                    {sprints.map((sprint) => (
+                      <div key={sprint.id} className="rounded border border-white/[0.06] bg-black/20" style={{ padding: '8px 10px' }}>
+                        <div className="flex items-center justify-between" style={{ marginBottom: '4px' }}>
+                          <div className="flex items-center" style={{ gap: '6px' }}>
+                            <span className={`text-xs rounded-full ${
+                              sprint.status === 'completed' ? 'bg-neon-green/10 text-neon-green/70' :
+                              sprint.status === 'running' ? 'bg-neon-blue/10 text-neon-blue/70' :
+                              'bg-red-500/10 text-red-400/70'
+                            }`} style={{ padding: '1px 6px' }}>
+                              {sprint.status === 'running' ? 'Running...' : sprint.status}
+                            </span>
+                            <span className="text-xs text-gray-500">
+                              Sprint #{sprint.id} {sprint.started_at && new Date(sprint.started_at + 'Z').toLocaleString()}
+                            </span>
+                            {sprint.output_size > 0 && (
+                              <span className="text-xs text-gray-600">
+                                {sprint.output_size > 1024 ? `${(sprint.output_size / 1024).toFixed(1)}KB` : `${sprint.output_size}B`} output
+                              </span>
+                            )}
+                          </div>
+                          {sprint.output_tail && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setExpandedSprintId(expandedSprintId === sprint.id ? null : sprint.id) }}
+                              className="text-xs text-gray-500 hover:text-white transition-colors"
+                            >
+                              {expandedSprintId === sprint.id ? '▲ Collapse' : '▼ Output'}
+                            </button>
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">{sprint.cwd}</div>
+                        {expandedSprintId === sprint.id && sprint.output_tail && (
+                          <div className="text-xs text-gray-300 font-mono rounded bg-black/40" style={{ padding: '10px', marginTop: '6px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '300px', overflow: 'auto', lineHeight: '1.5' }}>
+                            {sprint.output_tail}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

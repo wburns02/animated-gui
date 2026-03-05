@@ -148,6 +148,23 @@ export interface PromptHistoryEntry {
   source: 'auto' | 'manual'
 }
 
+export interface SprintEntry {
+  id: number
+  session_id: string
+  pid: number
+  sprint_pid: number
+  tty: string
+  cwd: string
+  prompt: string
+  status: 'running' | 'completed' | 'failed'
+  output_path: string
+  output_size: number
+  output_tail: string
+  started_at: string
+  completed_at: string | null
+  source: string
+}
+
 // API functions
 export const api = {
   health: () => request<{ status: string }>('/health'),
@@ -199,6 +216,14 @@ export const api = {
       ),
     promptHistory: (sessionId: string) =>
       request<PromptHistoryEntry[]>(`/sessions/${sessionId}/prompts`),
+    sprints: (sessionId: string) =>
+      request<SprintEntry[]>(`/sprints/by-session/${sessionId}`),
+  },
+
+  sprints: {
+    list: (limit = 20) => request<SprintEntry[]>(`/sprints?limit=${limit}`),
+    output: (sprintId: number) =>
+      request<{ sprint_id: number; output: string; lines: number; status: string }>(`/sprints/${sprintId}/output`),
   },
 
   events: {
