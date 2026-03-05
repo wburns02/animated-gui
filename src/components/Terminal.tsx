@@ -8,6 +8,7 @@ interface TerminalProps {
   className?: string
   style?: React.CSSProperties
   initialCommand?: string
+  delayedCommand?: string  // Sent after a longer delay (e.g. for Claude to start up first)
 }
 
 function getWsBase(): string {
@@ -19,7 +20,7 @@ function getWsBase(): string {
   return 'ws://localhost:8787'
 }
 
-export default function Terminal({ className, style, initialCommand }: TerminalProps) {
+export default function Terminal({ className, style, initialCommand, delayedCommand }: TerminalProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const termRef = useRef<XTerm | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
@@ -84,6 +85,12 @@ export default function Terminal({ className, style, initialCommand }: TerminalP
         setTimeout(() => {
           ws.send(initialCommand + '\n')
         }, 500)
+      }
+      // Send delayed command (e.g. prompt for Claude after it starts up)
+      if (delayedCommand) {
+        setTimeout(() => {
+          ws.send(delayedCommand + '\n')
+        }, 5000)
       }
     }
 

@@ -7,6 +7,7 @@ interface TerminalInstance {
   id: number
   label: string
   command?: string
+  autoPrompt?: string
 }
 
 const PROJECTS = [
@@ -32,12 +33,13 @@ export default function TerminalPage() {
   }
 
   const launchVibeLoopWithPrompt = (project: typeof PROJECTS[0]) => {
-    // Launch interactive Claude (not -p which is headless/buffered) and pipe the prompt via stdin
-    // This way output streams in real-time so you can watch it work
+    // Launch Claude interactively with --dangerously-skip-permissions
+    // The prompt is sent as a second initialCommand after Claude starts up
     const prompt = `Review the current state of the ${project.name} project. Check what pages and features exist, test the production site with Playwright at ${project.prod || 'localhost'}, identify bugs or missing features, then pick the highest-impact improvement and build it. Push to GitHub when done. Test with Playwright, fix failures, iterate up to 30 times.`
-    const escaped = prompt.replace(/'/g, "'\\''")
-    const cmd = `cd ${project.dir} && echo '${escaped}' | claude --dangerously-skip-permissions`
-    addTerminal(`sprint: ${project.name}`, cmd)
+    const cmd = `cd ${project.dir} && claude --dangerously-skip-permissions`
+    const id = Math.max(...terminals.map(t => t.id), 0) + 1
+    setTerminals(prev => [...prev, { id, label: `sprint: ${project.name}`, command: cmd, autoPrompt: prompt }])
+    setShowLauncher(false)
   }
 
   return (
@@ -122,7 +124,7 @@ export default function TerminalPage() {
                 </button>
               </div>
               <div style={{ height: 'calc(100% - 28px)' }}>
-                <Terminal initialCommand={t.command} />
+                <Terminal initialCommand={t.command} delayedCommand={t.autoPrompt} />
               </div>
             </GlassCard>
           ))}
