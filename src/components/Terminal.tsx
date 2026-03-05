@@ -87,10 +87,13 @@ export default function Terminal({ className, style, initialCommand, delayedComm
         }, 500)
       }
       // Send delayed command (e.g. prompt for Claude after it starts up)
+      // Wait 8s for Claude to initialize, then send text + Enter (\r)
       if (delayedCommand) {
         setTimeout(() => {
-          ws.send(delayedCommand + '\n')
-        }, 5000)
+          ws.send(delayedCommand)
+          // Small delay then press Enter via carriage return
+          setTimeout(() => ws.send('\r'), 300)
+        }, 8000)
       }
     }
 
