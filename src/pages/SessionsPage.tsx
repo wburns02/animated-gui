@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import PageTransition from '../components/PageTransition'
 import GlassCard from '../components/GlassCard'
 import { api } from '../api'
-import type { Session, SessionSummary, AutomationSetting } from '../api'
+import type { Session, SessionSummary, AutomationSetting, PromptHistoryEntry } from '../api'
 import { usePolling } from '../hooks/usePolling'
 
 export default function SessionsPage() {
@@ -126,9 +126,29 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
   const glowColor = isRunning ? '#00f5a0' : '#6b7280'
   const [showPrompt, setShowPrompt] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
+  const [showHistory, setShowHistory] = useState(false)
+  const [promptHistory, setPromptHistory] = useState<PromptHistoryEntry[]>([])
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [expandedPromptId, setExpandedPromptId] = useState<number | null>(null)
   const [prompt, setPrompt] = useState('')
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+
+  const loadHistory = async () => {
+    if (!s.session_id) return
+    setHistoryLoading(true)
+    try {
+      const data = await api.sessions.promptHistory(s.session_id)
+      setPromptHistory(data)
+    } catch { /* ignore */ }
+    setHistoryLoading(false)
+  }
+
+  const toggleHistory = () => {
+    const next = !showHistory
+    setShowHistory(next)
+    if (next) loadHistory()
+  }
 
   const handleSendPrompt = async () => {
     if (!prompt.trim()) return
@@ -169,6 +189,19 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
           <span className="text-xs text-gray-500 font-mono shrink-0">{s.tty}</span>
         </div>
         <div className="flex items-center flex-wrap" style={{ gap: '6px' }}>
+          {s.session_id && (
+            <button
+              onClick={toggleHistory}
+              className={`text-xs font-medium rounded-full transition-all ${
+                showHistory
+                  ? 'bg-neon-orange/20 text-neon-orange border border-neon-orange/40'
+                  : 'bg-white/[0.05] text-gray-400 hover:text-white hover:bg-white/[0.1] border border-white/[0.1]'
+              }`}
+              style={{ padding: '4px 12px' }}
+            >
+              {showHistory ? 'Hide History' : 'Prompt History'}
+            </button>
+          )}
           {isRunning && (
             <button
               onClick={() => { setShowPrompt(!showPrompt); setResult(null) }}
@@ -448,6 +481,65 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
                     {sending ? 'Sending...' : 'Send Prompt'}
                   </button>
                 </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Prompt History */}
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ overflow: 'hidden', marginTop: '10px' }}
+          >
+            <div
+              className="rounded-lg border border-neon-orange/30 bg-neon-orange/5"
+              style={{ padding: '12px' }}
+            >
+              <div className="flex items-center justify-between" style={{ marginBottom: '8px' }}>
+                <span className="text-xs text-neon-orange font-semibold">Prompt History</span>
+                <button onClick={loadHistory} className="text-xs text-gray-500 hover:text-neon-orange transition-colors">
+                  {historyLoading ? 'Loading...' : '↻ Refresh'}
+                </button>
+              </div>
+              {promptHistory.length === 0 && !historyLoading && (
+                <div className="text-xs text-gray-500" style={{ padding: '8px 0' }}>No prompts sent yet</div>
+              )}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {promptHistory.map((entry) => (
+                  <div key={entry.id} className="rounded border border-white/[0.06] bg-black/20" style={{ padding: '8px 10px' }}>
+                    <div className="flex items-center justify-between" style={{ marginBottom: '4px' }}>
+                      <div className="flex items-center" style={{ gap: '6px' }}>
+                        <span className={`text-xs rounded-full ${entry.source === 'auto' ? 'bg-neon-green/10 text-neon-green/70' : 'bg-neon-purple/10 text-neon-purple/70'}`} style={{ padding: '1px 6px' }}>
+                          {entry.source === 'auto' ? 'Auto' : 'Manual'}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(entry.created_at + 'Z').toLocaleString()}
+                        </span>
+                      </div>
+                      {entry.prompt_full && (
+                        <button
+                          onClick={() => setExpandedPromptId(expandedPromptId === entry.id ? null : entry.id)}
+                          className="text-xs text-gray-500 hover:text-white transition-colors"
+                        >
+                          {expandedPromptId === entry.id ? '▲ Collapse' : '▼ Expand'}
+                        </button>
+                      )}
+                    </div>
+                    {expandedPromptId === entry.id && entry.prompt_full ? (
+                      <div className="text-xs text-gray-300 font-mono rounded bg-black/40" style={{ padding: '10px', marginTop: '4px', whiteSpace: 'pre-wrap', wordBreak: 'break-word', maxHeight: '400px', overflow: 'auto', lineHeight: '1.6' }}>
+                        {entry.prompt_full}
+                      </div>
+                    ) : (
+                      <div className="text-xs text-gray-400 truncate">{entry.prompt_preview}</div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </motion.div>

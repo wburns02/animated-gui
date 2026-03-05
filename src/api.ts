@@ -138,6 +138,16 @@ export interface AutomationSetting {
   created_at: string
 }
 
+export interface PromptHistoryEntry {
+  id: number
+  event_type: string
+  created_at: string
+  prompt_preview: string
+  prompt_full: string
+  session_slug: string
+  source: 'auto' | 'manual'
+}
+
 // API functions
 export const api = {
   health: () => request<{ status: string }>('/health'),
@@ -187,6 +197,8 @@ export const api = {
         `/sessions/${sessionId}/automation`,
         { method: 'PUT', body: JSON.stringify({ enabled }) },
       ),
+    promptHistory: (sessionId: string) =>
+      request<PromptHistoryEntry[]>(`/sessions/${sessionId}/prompts`),
   },
 
   events: {
