@@ -17,6 +17,13 @@ const PROJECTS = [
   { name: 'ReactCRM', dir: '~/ReactCRM', backend: '~/react-crm-api', prod: 'https://react.ecbtx.com' },
 ]
 
+const COMPETITORS: Record<string, string[]> = {
+  BreweryCRM: ['Ekos (grain-to-glass tracking, TTB compliance)', 'Ollie (taproom POS, keg tracking, distributor portal)', 'Breww (real-time tank monitoring, automated batch costing)', 'Arryved (mobile ordering, tab management, event ticketing)', 'Untappd for Business (menu publishing, customer ratings, social integration)'],
+  LandscapeCRM: ['Jobber (one-click rebooking, automated invoicing, client hub)', 'ServiceTitan (GPS fleet tracking, real-time dispatch, customer ETA texts)', 'LMN (crew time tracking, job costing, budget vs actual)', 'Aspire (proposal builder, route optimization, chemical tracking)', 'SingleOps (drag-and-drop scheduling, photo documentation, recurring services)'],
+  CrownHardware: ['Fishbowl (manufacturing BOM, work orders, inventory forecasting)', 'Katana (visual production planning, batch tracking, live floor control)', 'MRPeasy (capacity planning, quality control, shipping integration)', 'JobBOSS (quoting, shop floor data collection, tool tracking)', 'Odoo Manufacturing (PLM, quality alerts, maintenance scheduling)'],
+  ReactCRM: ['ServiceTitan (AI dispatch, pricebook management, real-time GPS)', 'Housecall Pro (online booking, automated follow-ups, review requests)', 'FieldEdge (QuickBooks sync, flat-rate pricing, performance dashboards)', 'Workiz (AI call answering, lead scoring, two-way SMS)', 'Service Fusion (estimate-to-invoice pipeline, fleet GPS, customer portal)'],
+}
+
 export default function TerminalPage() {
   const [terminals, setTerminals] = useState<TerminalInstance[]>([{ id: 1, label: 'bash' }])
   const [showLauncher, setShowLauncher] = useState(false)
@@ -27,14 +34,18 @@ export default function TerminalPage() {
     setShowLauncher(false)
   }
 
-  const launchVibeLoop = (project: typeof PROJECTS[0]) => {
+  const launchWithPrompt = (project: typeof PROJECTS[0], label: string, prompt: string) => {
     const cmd = `cd ${project.dir} && claude --dangerously-skip-permissions`
-    addTerminal(`vibe: ${project.name}`, cmd)
+    const id = Math.max(...terminals.map(t => t.id), 0) + 1
+    setTerminals(prev => [...prev, { id, label: `${label}: ${project.name}`, command: cmd, autoPrompt: prompt }])
+    setShowLauncher(false)
   }
 
-  const launchVibeLoopWithPrompt = (project: typeof PROJECTS[0]) => {
-    // Launch Claude interactively with --dangerously-skip-permissions
-    // The prompt is sent as a second initialCommand after Claude starts up
+  const launchInteractive = (project: typeof PROJECTS[0]) => {
+    addTerminal(`vibe: ${project.name}`, `cd ${project.dir} && claude --dangerously-skip-permissions`)
+  }
+
+  const launchQASprint = (project: typeof PROJECTS[0]) => {
     const prompt = `You are doing a deep QA audit of ${project.name}. Use Playwright to test the production site at ${project.prod || 'localhost:5173'}.
 
 STEP 1 — DEEP SCAN: Open every page. On each page:
@@ -53,10 +64,126 @@ STEP 3 — FIX ALL 5: Work through each issue one by one. For each:
 STEP 4 — FINAL VERIFICATION: Run a full Playwright pass across all pages to confirm everything works. Click buttons, submit forms, verify saves.
 
 Push to GitHub after each fix. Iterate up to 30 times if needed. Do not stop until all 5 issues are verified fixed.`
-    const cmd = `cd ${project.dir} && claude --dangerously-skip-permissions`
-    const id = Math.max(...terminals.map(t => t.id), 0) + 1
-    setTerminals(prev => [...prev, { id, label: `sprint: ${project.name}`, command: cmd, autoPrompt: prompt }])
-    setShowLauncher(false)
+    launchWithPrompt(project, 'qa', prompt)
+  }
+
+  const launchVisionarySprint = (project: typeof PROJECTS[0]) => {
+    const competitors = COMPETITORS[project.name] || []
+    const competitorList = competitors.map((c, i) => `${i + 1}. ${c}`).join('\n')
+
+    const prompt = `You are the world's best SaaS product designer. You've studied every CRM and business platform that achieved $100M+ ARR. You know what makes users fall in love with software — it's not features, it's workflows that feel magical.
+
+PROJECT: ${project.name}
+PRODUCTION: ${project.prod || 'not deployed yet'}
+
+TOP COMPETITORS AND THEIR KILLER FEATURES:
+${competitorList}
+
+YOUR MISSION — Build ONE feature so good it becomes the reason someone chooses this platform over every competitor.
+
+PHASE 1 — RESEARCH (use Playwright to study the current app at ${project.prod || 'localhost:5173'}):
+- Navigate every page, understand what exists
+- Identify the #1 gap: what would make a user open this app every morning before their coffee?
+- Think about WORKFLOWS not features. Don't build "a dashboard" — build "the thing that tells a business owner exactly what to do today and lets them do it in one click"
+
+PHASE 2 — DESIGN THE KILLER FEATURE:
+- It should feel opinionated and magical, not generic
+- It should automate something that currently takes 10+ minutes manually
+- It should surface insights the user didn't know they needed
+- Think: predictive suggestions, one-click actions, real-time status, smart defaults, proactive alerts
+
+PHASE 3 — BUILD IT:
+- Create beautiful, polished UI with animations, charts, and micro-interactions
+- Use real-looking data (not "Lorem ipsum" or "Test Item 1")
+- Mobile responsive
+- Loading skeletons for async data
+- Empty states that guide the user
+- Success/error feedback on every action
+
+PHASE 4 — POLISH (review your own work like an Apple design critic):
+- Are the animations smooth and purposeful (not gratuitous)?
+- Does every button have hover/active states?
+- Are error messages helpful and specific?
+- Is the typography hierarchy clear?
+- Would a first-time user understand what to do without instructions?
+
+PHASE 5 — VERIFY with Playwright:
+- Test every interaction: clicks, form fills, saves, navigation
+- Verify data persists after save
+- Check console for errors
+- Test on different viewport sizes
+
+Push to GitHub after building. Iterate up to 30 times on Playwright failures. Only declare success when EVERYTHING works perfectly.`
+    launchWithPrompt(project, 'vision', prompt)
+  }
+
+  const launchFullPipeline = (project: typeof PROJECTS[0]) => {
+    const competitors = COMPETITORS[project.name] || []
+    const competitorList = competitors.map((c, i) => `${i + 1}. ${c}`).join('\n')
+
+    const prompt = `You are running a FULL PRODUCT PIPELINE for ${project.name}. This is a multi-phase sprint that covers research, building, polishing, and QA — like a complete product team compressed into one session.
+
+PRODUCTION: ${project.prod || 'not deployed yet'}
+
+COMPETITORS:
+${competitorList}
+
+═══════════════════════════════════════════
+PHASE 1 — RESEARCH & AUDIT (15 min)
+═══════════════════════════════════════════
+Use Playwright to deeply test ${project.prod || 'localhost:5173'}:
+- Visit every page, click every button, fill every form, try to save
+- Document what works, what's broken, what's missing
+- Compare against the competitors above — what do they have that we don't?
+- Create a ranked list:
+  TOP 5 BUGS (broken buttons, forms that don't save, crashes)
+  TOP 3 MISSING FEATURES (things competitors have that would 10x this app)
+
+═══════════════════════════════════════════
+PHASE 2 — FIX ALL BUGS (30 min)
+═══════════════════════════════════════════
+Work through all 5 bugs. For each:
+- Fix the root cause
+- Verify with Playwright (click, fill, save, confirm)
+- Push to GitHub
+Do NOT move to Phase 3 until all 5 bugs pass Playwright verification.
+
+═══════════════════════════════════════════
+PHASE 3 — BUILD THE #1 MISSING FEATURE (60 min)
+═══════════════════════════════════════════
+Pick the highest-impact missing feature and build it completely:
+- Beautiful, polished UI with animations and micro-interactions
+- Real-looking mock data (names, amounts, dates that look genuine)
+- Loading skeletons, empty states, success/error feedback
+- Mobile responsive
+- Integrated into the existing navigation and data flow
+
+═══════════════════════════════════════════
+PHASE 4 — POLISH PASS (15 min)
+═══════════════════════════════════════════
+Review everything you built like a design critic:
+- Smooth animations (not janky or gratuitous)
+- Consistent spacing, typography, colors
+- Every button has hover/active/disabled states
+- Empty states guide the user on what to do
+- Error messages are specific and helpful
+- First-time user can understand the UI without instructions
+Fix anything that falls short.
+
+═══════════════════════════════════════════
+PHASE 5 — FINAL QA SWEEP (15 min)
+═══════════════════════════════════════════
+Full Playwright verification of EVERYTHING:
+- Every page loads
+- Every button works
+- Every form saves data
+- Every navigation link works
+- No console errors
+- New feature fully functional
+
+Push final state to GitHub. Only declare success when the full sweep passes.
+Iterate up to 30 times on failures.`
+    launchWithPrompt(project, 'pipeline', prompt)
   }
 
   return (
@@ -91,27 +218,41 @@ Push to GitHub after each fix. Iterate up to 30 times if needed. Do not stop unt
         {showLauncher && (
           <GlassCard glowColor="#a855f7" padding="12px">
             <div className="text-xs text-neon-purple font-semibold" style={{ marginBottom: '8px' }}>
-              Launch Vibe Loop — pick a project
+              Launch Vibe Loop — pick a project and sprint type
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {PROJECTS.map((project) => (
-                <div key={project.name} className="rounded-lg border border-white/[0.08] bg-white/[0.02]" style={{ padding: '10px 14px' }}>
+                <div key={project.name} className="rounded-lg border border-white/[0.08] bg-white/[0.02]" style={{ padding: '10px 14px', minWidth: '200px' }}>
                   <div className="text-sm text-white font-semibold">{project.name}</div>
                   <div className="text-xs text-gray-500 font-mono" style={{ marginBottom: '6px' }}>{project.dir}</div>
-                  <div className="flex items-center" style={{ gap: '6px' }}>
+                  <div className="flex items-center flex-wrap" style={{ gap: '4px' }}>
                     <button
-                      onClick={() => launchVibeLoop(project)}
-                      className="text-xs rounded-full bg-neon-green/10 text-neon-green hover:bg-neon-green/20 border border-neon-green/30 transition-all"
-                      style={{ padding: '3px 10px' }}
+                      onClick={() => launchInteractive(project)}
+                      className="text-xs rounded-full bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10 transition-all"
+                      style={{ padding: '3px 8px' }}
                     >
                       Interactive
                     </button>
                     <button
-                      onClick={() => launchVibeLoopWithPrompt(project)}
-                      className="text-xs rounded-full bg-neon-purple/10 text-neon-purple hover:bg-neon-purple/20 border border-neon-purple/30 transition-all"
-                      style={{ padding: '3px 10px' }}
+                      onClick={() => launchQASprint(project)}
+                      className="text-xs rounded-full bg-neon-green/10 text-neon-green hover:bg-neon-green/20 border border-neon-green/30 transition-all"
+                      style={{ padding: '3px 8px' }}
                     >
-                      Auto Sprint
+                      QA Fix 5
+                    </button>
+                    <button
+                      onClick={() => launchVisionarySprint(project)}
+                      className="text-xs rounded-full bg-neon-purple/10 text-neon-purple hover:bg-neon-purple/20 border border-neon-purple/30 transition-all"
+                      style={{ padding: '3px 8px' }}
+                    >
+                      Visionary
+                    </button>
+                    <button
+                      onClick={() => launchFullPipeline(project)}
+                      className="text-xs rounded-full bg-[#ff006e]/10 text-[#ff006e] hover:bg-[#ff006e]/20 border border-[#ff006e]/30 transition-all"
+                      style={{ padding: '3px 8px' }}
+                    >
+                      Full Pipeline
                     </button>
                   </div>
                 </div>
@@ -123,7 +264,7 @@ Push to GitHub after each fix. Iterate up to 30 times if needed. Do not stop unt
         {/* Terminal Grid */}
         <div style={{ flex: 1, display: 'grid', gridTemplateColumns: terminals.length > 1 ? '1fr 1fr' : '1fr', gap: '10px', minHeight: 0 }}>
           {terminals.map((t) => (
-            <GlassCard key={t.id} glowColor={t.command ? '#a855f7' : '#00f5a0'} padding="0">
+            <GlassCard key={t.id} glowColor={t.label.startsWith('vision') ? '#a855f7' : t.label.startsWith('pipeline') ? '#ff006e' : t.label.startsWith('qa') ? '#00f5a0' : t.command ? '#00d2ff' : '#00f5a0'} padding="0">
               <div className="flex items-center justify-between" style={{ padding: '5px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                 <span className={`text-xs font-mono ${t.command ? 'text-neon-purple' : 'text-gray-400'}`}>
                   {t.label} #{t.id}
