@@ -492,10 +492,10 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
         {showHistory && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1, overflow: 'visible' }}
+            exit={{ height: 0, opacity: 0, overflow: 'hidden' }}
             transition={{ duration: 0.2 }}
-            style={{ overflow: 'hidden', marginTop: '10px' }}
+            style={{ marginTop: '10px' }}
           >
             <div
               className="rounded-lg border border-neon-orange/30 bg-neon-orange/5"
@@ -524,7 +524,7 @@ function SessionCard({ session: s, summary, automationEnabled, automationSetting
                       </div>
                       {entry.prompt_full && (
                         <button
-                          onClick={() => setExpandedPromptId(expandedPromptId === entry.id ? null : entry.id)}
+                          onClick={(e) => { e.stopPropagation(); setExpandedPromptId(expandedPromptId === entry.id ? null : entry.id) }}
                           className="text-xs text-gray-500 hover:text-white transition-colors"
                         >
                           {expandedPromptId === entry.id ? '▲ Collapse' : '▼ Expand'}
