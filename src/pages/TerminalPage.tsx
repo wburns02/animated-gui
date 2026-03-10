@@ -217,7 +217,7 @@ Iterate up to 30 times on failures.`
   }
 
   const launchPerformanceSprint = (project: typeof PROJECTS[0]) => {
-    const prompt = `You are a senior performance engineer auditing ${project.name}. Your goal is to make this app FAST — sub-second page loads, smooth 60fps animations, minimal bundle size.
+    const prompt = `You are a senior performance engineer auditing ${project.name}. Your goal is to make this app FAST — sub-second page loads, smooth 60fps animations, optimized rendering.
 
 PRODUCTION: ${project.prod || 'localhost:5173'}
 
@@ -228,25 +228,36 @@ Use Playwright to measure performance on every page:
 - Time each page navigation (goto + domcontentloaded)
 - Count network requests per page
 - Check for: large images, unoptimized assets, render-blocking scripts
-- Look at bundle size — run \`npm run build\` and check the output
 - Identify the 3 slowest pages and the root cause of each
 
 ═══════════════════════════════════════════
 PHASE 2 — OPTIMIZE (fix the top 5 issues)
 ═══════════════════════════════════════════
-Common fixes to apply:
-- Add React.lazy() and Suspense for route-level code splitting
-- Add loading="lazy" to images
+ALLOWED optimizations:
+- React.lazy() for route-level code splitting (component level only)
+- Image lazy loading, compression
+- useMemo/useCallback for expensive re-renders
+- API pagination, caching
+- Skeleton loaders for perceived performance
 - Replace heavy imports with lighter alternatives
-- Add useMemo/useCallback where re-renders are excessive
-- Optimize API calls — remove N+1 queries, add pagination
-- Add skeleton loaders for perceived performance
+
+FORBIDDEN (do NOT touch these files or settings):
+- vite.config.ts / webpack config / any build tooling configuration
+- package.json dependencies (no adding/removing/changing versions)
+- tsconfig.json compiler options
+- tailwind.config.ts
+- Manual chunk splitting or manualChunks configuration
+- rollupOptions or any Rollup/Vite build settings
+- .env files or environment configuration
+
+If you believe a build config change is needed, STOP and explain why instead of making the change.
 
 ═══════════════════════════════════════════
 PHASE 3 — VERIFY
 ═══════════════════════════════════════════
 Re-run Playwright timing on every page. Compare before/after.
 Target: every page loads in under 2 seconds on localhost.
+ALWAYS run \`npm run build\` before pushing to verify the build is not broken.
 Push to GitHub. Iterate up to 15 times on failures.`
     launchWithPrompt(project, 'perf', prompt)
   }
