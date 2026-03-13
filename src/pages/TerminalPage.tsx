@@ -44,7 +44,7 @@ const PROJECTS = [
   { name: 'PeakDipVibe', dir: '~/PeakDipVibe', backend: '', prod: '' },
   { name: 'DrPhil', dir: '~/drphil', backend: '~/drphil', prod: 'https://drphil.ecbtx.com' },
   { name: 'PermitAPI', dir: '~/permit-api', backend: '~/permit-api', prod: 'https://permits.ecbtx.com' },
-  { name: 'NurseStation', dir: '~/NurseStation', backend: '~/nursestation-api', prod: '' },
+  { name: 'NurseStation', dir: '~/NurseStation', backend: '~/nursestation-api', prod: 'https://opus46-production.up.railway.app' },
 ]
 
 const COMPETITORS: Record<string, string[]> = {
